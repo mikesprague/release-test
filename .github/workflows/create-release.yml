@@ -14,8 +14,10 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+      - name: Install conventional changelog CLI
+        run: npm install --location=global conventional-changelog-cli
       - name: Generate Release via CLI
         run: |
-          gh release create ${GITHUB_REF##*/} --generate-notes
+          conventional-changelog -u -r 2 | gh release create ${GITHUB_REF##*/} -F -
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
