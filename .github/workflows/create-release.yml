@@ -18,8 +18,8 @@ jobs:
         run: npm install --location=global conventional-changelog-cli
       - name: Generate Release via CLI
         run: |
-          currentTag=${GITHUB_REF##*/}
+          currentTag=$(git describe --tags --abbrev=0)
           previousTag=$(git describe --tags --abbrev=0 $currentTag^)
-          git log  --pretty=format:' * %s - %h' $previousTag..$currentTag | gh release create $currentTag -F -
+          git log  --pretty=format:' * %s - %h' $previousTag..$currentTag | gh release create ${GITHUB_REF##*/} -F -
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
