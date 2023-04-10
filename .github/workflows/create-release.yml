@@ -14,13 +14,14 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set Vars
+        run: |
+          echo "NEW_TAG=$(git tag | sort --version-sort -r | head -1)" >> $GITHUB_ENV
+          echo "LAST_TAG=$(git tag | sort --version-sort -r | head -2 | tail -1)" >> $GITHUB_ENV
       - name: Generate Release via CLI
         run: |
-          currentTag=$(git describe --tags --abbrev=0)
-          previousTag=$(git describe --tags --abbrev=0 $currentTag^)
-          echo "currentTag: $currentTag"
-          echo "previousTag: $previousTag"
-          echo $(git log  --pretty=format:' * %s - %h' $previousTag..$currentTag)
-          # git log  --pretty=format:' * %s - %h' $previousTag..$currentTag | gh release create ${GITHUB_REF##*/} -F -
+          git log  --pretty=format:' * %s - %h' "${{ env.LAST_TAG }}".."${{ env.NEW_TAG }}" | gh release create "${{ env.NEW_TAG }}" --generate-notes -F -
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
